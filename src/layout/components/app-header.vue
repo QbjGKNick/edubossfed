@@ -46,11 +46,20 @@ export default Vue.extend({
       this.userInfo = content
     },
     handleLogout () {
-      // 清除登录状态
-      this.$store.commit('setUser', null)
-      // 跳转到登录页面
-      this.$router.push({
-        name: 'login'
+      this.$confirm('确认退出吗？', '退出提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 清除登录状态
+        this.$store.commit('setUser', null)
+        // 跳转到登录页面
+        this.$router.push({
+          name: 'login'
+        })
+        this.$message.success('退出成功！')
+      }).catch(() => {
+        this.$message.info('已取消退出')
       })
     }
   }
