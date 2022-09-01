@@ -13,6 +13,16 @@ const redirectLogin = () => {
   })
 }
 
+const refreshToken = () => {
+  return axios.create()({
+    method: 'POST',
+    url: '/front/user/refresh_token',
+    data: qs.stringify({
+      refreshtoken: store.state.user?.refresh_token
+    })
+  })
+}
+
 const request = axios.create({
   // 配置选项
   // baseURL,
@@ -31,8 +41,11 @@ request.interceptors.request.use(config => {
 })
 
 // 响应拦截器
+let isRefreshing = false // 控制刷新 token 的状态
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const requests: any[] = [] // 存储杀心 token 期间过来的 401 请求
 request.interceptors.response.use(response => {
-  console.log(response)
+  // console.log(response)
   const status = response.data.state
   if (!status || status === 1) {
     return response
@@ -52,27 +65,58 @@ request.interceptors.response.use(response => {
         redirectLogin()
         return Promise.reject(error)
       }
-      // 尝试刷新获取新的 token
-      try {
-        const { data } = await axios.create()({
-          method: 'POST',
-          url: '/front/user/refresh_token',
-          data: qs.stringify({
-            refreshtoken: store.state.user.refresh_token
-          })
+
+      if (!isRefreshing) {
+        isRefreshing = true // 开启刷新状态
+        // 尝试刷新获取新的 token
+        return refreshToken().then(res => {
+          if (!res.data.success) {
+            throw new Error('刷新 Token 失败')
+          }
+          // 刷新 token 成功了
+          store.commit('setUser', res.data.content)
+          // 把 requests 队列中的请求重新发出去
+          requests.forEach(cb => cb())
+          // 重置 requests 数组
+          return request(error.config)
+        }).catch(err => {
+          console.log(err)
+          // 把当前登录用户状态清除
+          store.commit('setUser', null)
+          //    失败了 -> 跳转登录页面重新登录获取新的 token
+          redirectLogin()
+          return Promise.reject(error)
+        }).finally(() => {
+          isRefreshing = false // 重置刷新状态
         })
-        //    成功了 -> 把本次失败的请求重新发出去
-        // 把刷新拿到的新的 access_token 更新到容器和本地存储中
-        store.commit('setUser', data.content)
-        // 把本次失败的请求重新发出去
-        return request(error.config)
-      } catch (err) {
-        // 把当前登录用户状态清除
-        store.commit('setUser', null)
-        //    失败了 -> 跳转登录页面重新登录获取新的 token
-        redirectLogin()
-        return Promise.reject(error)
       }
+
+      // 刷新状态下，把请求挂起放到 requests 数组中
+      return new Promise(resolve => {
+        requests.push(() => {
+          resolve(request(error.config))
+        })
+      })
+      // try {
+      //   const { data } = await axios.create()({
+      //     method: 'POST',
+      //     url: '/front/user/refresh_token',
+      //     data: qs.stringify({
+      //       refreshtoken: store.state.user.refresh_token
+      //     })
+      //   })
+      //   //    成功了 -> 把本次失败的请求重新发出去
+      //   // 把刷新拿到的新的 access_token 更新到容器和本地存储中
+      //   store.commit('setUser', data.content)
+      //   // 把本次失败的请求重新发出去
+      //   return request(error.config)
+      // } catch (err) {
+      //   // 把当前登录用户状态清除
+      //   store.commit('setUser', null)
+      //   //    失败了 -> 跳转登录页面重新登录获取新的 token
+      //   redirectLogin()
+      //   return Promise.reject(error)
+      // }
       // 如果没有，则直接跳转登录页
     } else if (status === 403) {
       Message.error('没有权限，请联系管理员')
