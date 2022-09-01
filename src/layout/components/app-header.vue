@@ -8,11 +8,11 @@
     </el-breadcrumb>
     <el-dropdown>
       <span class="el-dropdown-link">
-        <el-avatar shape="square" :size="30" :src="userInfo && userInfo.portrait || defaultAvatar"></el-avatar>
+        <el-avatar shape="square" :size="30" :src="userInfo.portrait || defaultAvatar"></el-avatar>
         <i class="el-icon-arrow-down el-icon--right"></i>
       </span>
       <el-dropdown-menu slot="dropdown">
-        <el-dropdown-item>{{ userInfo && userInfo.userName }}</el-dropdown-item>
+        <el-dropdown-item>{{ userInfo.userName }}</el-dropdown-item>
         <el-dropdown-item
           divided
           @click.native="handleLogout"
@@ -31,7 +31,10 @@ export default Vue.extend({
   data () {
     return {
       defaultAvatar: require('@/assets/default-avatar.png'),
-      userInfo: {} // 当前登录用户信息
+      userInfo: {
+        portrait: '',
+        userName: ''
+      } // 当前登录用户信息
     }
   },
   created () {
@@ -39,8 +42,8 @@ export default Vue.extend({
   },
   methods: {
     async loadUserInfo () {
-      const { data } = await getUserInfo()
-      this.userInfo = data.content
+      const content = await getUserInfo()
+      this.userInfo = content
     },
     handleLogout () {
       // 清除登录状态

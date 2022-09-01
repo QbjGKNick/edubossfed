@@ -1,5 +1,10 @@
 /* eslint-disable camelcase */
-export interface IUserInfo {
+export interface IUser {
+  phone: string
+  password: string
+}
+
+export interface ILoginInfo {
   access_token: string
   expires_in: number
   jti: string
@@ -8,4 +13,10 @@ export interface IUserInfo {
   scope: string
   token_type: string
   user_id: string
+}
+
+export interface IUserInfo {
+  isUpdatedPassword: boolean
+  portrait: string
+  userName: string
 }

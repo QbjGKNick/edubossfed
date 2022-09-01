@@ -58,7 +58,7 @@ export default Vue.extend({
         this.isLoginLoading = true
 
         // 2. 验证通过 -> 提交表单
-        const { data } = await login(this.form)
+        const content = await login(this.form)
         // const { data } = await request({
         //   method: 'POST',
         //   url: '/front/user/login',
@@ -68,13 +68,12 @@ export default Vue.extend({
         //   data: qs.stringify(this.form) // axios 默认发送的是 application/json 格式数据
         // })
         // 3. 处理请求结果
-        const { state, message } = data
         //    失败：给出提示
-        if (state !== 1) {
-          Message.error(message)
-        }
+        // if (state !== 1) {
+        //   Message.error(message)
+        // }
         // 1. 成功：跳转首页，记录登录状态，状态需要能够全局访问（放到 vuex 中）
-        this.$store.commit('setUser', data.content)
+        this.$store.commit('setUser', content)
         // 2. 然后在访问需要登录的页面的时候判断有无登录状态（路由拦截器）
         // this.$router.push({
         //   name: 'home'

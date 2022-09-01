@@ -5,14 +5,10 @@
 // import store from '@/store'
 import request from '@/utils/request'
 import qs from 'qs'
+import type { IUser, ILoginInfo, IUserInfo } from './types/common'
 
-interface User {
-  phone: string
-  password: string
-}
-
-export const login = (data: User) => {
-  return request({
+export const login = (data: IUser) => {
+  return request<ILoginInfo>({
     method: 'POST',
     url: '/front/user/login',
     // headers: {
@@ -26,7 +22,7 @@ export const login = (data: User) => {
 }
 
 export const getUserInfo = () => {
-  return request({
+  return request<IUserInfo>({
     method: 'GET',
     url: '/front/user/getInfo'
     // headers: {
