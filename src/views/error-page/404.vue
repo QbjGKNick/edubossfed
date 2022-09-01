@@ -1,6 +1,6 @@
 <template>
-  <div id="app">
-    <router-view/>
+  <div class="404">
+    <h1>404 Not Found.</h1>
   </div>
 </template>
 
@@ -8,13 +8,10 @@
 import Vue from 'vue'
 
 export default Vue.extend({
-  name: 'App'
+  name: 'NotFound'
 })
 </script>
 
 <style lang="scss" scoped>
-// @import '~@/styles/variables.scss';
-.text {
-  color: $warning-color;
-}
+
 </style>
