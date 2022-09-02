@@ -47,7 +47,11 @@ const requests: any[] = [] // 存储杀心 token 期间过来的 401 请求
 request.interceptors.response.use(response => {
   // console.log(response)
   const status = response.data.state
+  const code = response.data.code
   if (!status || status === 1) {
+    if (code && code === '000000') {
+      return response
+    }
     return response
   }
   // 如果是自定义错误状态码，错误处理就写到这里

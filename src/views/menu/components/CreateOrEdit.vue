@@ -2,7 +2,7 @@
   <div class="menu-create">
     <el-card class="box-card">
       <div slot="header" class="clearfix">
-        <span>添加菜单</span>
+        <span>{{ isEdit ? '编辑菜单' : '添加菜单' }}</span>
       </div>
       <el-form ref="form" :model="form" label-width="80px">
         <el-form-item label="菜单名称">
@@ -33,8 +33,9 @@
           <el-input-number v-model="form.orderNum" :min="1" label="排序"></el-input-number>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onSubmit">提交</el-button>
+          <el-button type="primary" @click="handleSubmit">提交</el-button>
           <el-button v-if="!isEdit">重置</el-button>
+          <el-button @click="handleReturn">返回</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -75,21 +76,30 @@ export default Vue.extend({
   methods: {
     async loadMenuInfo () {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: resultData } = await getEditMenuInfo((this.$route as any).params.id || -1)
-      const { code, data } = resultData
-      if (code === '000000') {
-        this.form = data.menuInfo || this.form
-        this.parentMenuList = data.parentMenuList
-      }
+      const { menuInfo, parentMenuList } = await getEditMenuInfo(this.$route.params.id || -1)
+      // const { data: resultData } = await getEditMenuInfo((this.$route as any).params.id || -1)
+      // const { code, data } = resultData
+      // if (code === '000000') {
+      this.form = menuInfo || this.form
+      this.parentMenuList = parentMenuList
+      // }
     },
-    async onSubmit () {
+    async handleSubmit () {
       // 1. 表单验证
       // 2. 验证通过，提交表单
-      const { data } = await createOrUpdateMenu(this.form)
-      if (data.code === '000000') {
+      const success = await createOrUpdateMenu(this.form)
+      if (success) {
         this.$message.success('提交成功')
         this.$router.back()
       }
+      // const { data } = await createOrUpdateMenu(this.form)
+      // if (data.code === '000000') {
+      //   this.$message.success('提交成功')
+      //   this.$router.back()
+      // }
+    },
+    handleReturn () {
+      this.$router.back()
     }
   }
 })

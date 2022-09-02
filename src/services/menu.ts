@@ -4,9 +4,10 @@
 
 // import store from '@/store'
 import request from '@/utils/request'
+import type { IMenu } from './types/menu'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const createOrUpdateMenu = (data: any) => {
+export const createOrUpdateMenu = (data: IMenu) => {
   return request({
     method: 'POST',
     url: '/boss/menu/saveOrUpdate',

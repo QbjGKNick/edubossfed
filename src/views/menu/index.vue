@@ -14,7 +14,7 @@
         <el-table-column prop="level" label="菜单级数"> </el-table-column>
         <el-table-column prop="icon" label="前端图标"> </el-table-column>
         <el-table-column prop="orderNum" label="排序"> </el-table-column>
-        <el-table-column prop="address" label="操作" min-width="150">
+        <el-table-column prop="address" label="操作" width="150">
           <template slot-scope="scope">
         <el-button
           size="mini"
@@ -48,11 +48,13 @@ export default Vue.extend({
 
   methods: {
     async loadAllMenus () {
-      const { data: sourceData } = await getAllMenus()
-      const { code, data } = sourceData
-      if (code === '000000') {
-        this.menus = data
-      }
+      const data = await getAllMenus()
+      this.menus = data
+      // const { data: sourceData } = await getAllMenus()
+      // const { code, data } = sourceData
+      // if (code === '000000') {
+      //   this.menus = data
+      // }
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     handleEdit (row: any) {
@@ -68,8 +70,8 @@ export default Vue.extend({
       this.$confirm('确认删除吗？', '删除提示', {})
         .then(async () => { // 确认执行这里
           // 请求删除操作
-          const { data } = await deleteMenu(row.id)
-          if (data.code === '000000') {
+          const success = await deleteMenu(row.id)
+          if (success) {
             this.$message.success('删除成功')
             this.loadAllMenus() // 更新列表
           }
